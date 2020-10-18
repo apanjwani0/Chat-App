@@ -17,6 +17,7 @@
                 <div class="compose">
                     <form action="send-message" id="message-form">
                         <input type="text" placeholder="Type your message" name="message" required autocomplete="off">
+                        <select id="secs" name="destructIn"></select>
                         <button>Send</button>
                     </form>
                     <div><button id="send-location">Send Location</button></div>
@@ -26,7 +27,7 @@
         
 
         <script id="message-template" type="text/html">
-            <div class="message">
+            <div class="message" id="{{id}}">
                 <p>
                     <span class="message__name">{{username}}</span>
                     <span class="message__meta">{{time}}</span>
@@ -36,7 +37,7 @@
         </script>
 
         <script id="location-template" type="text/html">
-            <div class="message">
+            <div class="message" id="{{id}}">
                 <p>
                     <span class="message__name">{{username}}</span>
                     <span class="message__meta">{{time}}</span>
@@ -53,7 +54,26 @@
                     <li>{{username}}</li>
                 {{/users}}
             </ul>
+        </script>
 
+
+        <script type="text/javascript">
+            window.onload = function () {
+                //Reference the DropDownList.
+                var secs = document.getElementById("secs");
+         
+                //Determine the Current Year.
+                //var destructIn = (new Date()).getFullYear();
+         
+                //Loop and add the Year values to DropDownList.
+                for (var i = 2; i <= 30; i+=2) {
+                    var option = document.createElement("OPTION");
+                    option.innerHTML = i;
+                    option.value = i;
+                    secs.appendChild(option);
+                }
+                document.getElementById("secs").selectedIndex = "4";
+            };
         </script>
 
 

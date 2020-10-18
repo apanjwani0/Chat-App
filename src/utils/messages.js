@@ -1,8 +1,9 @@
-const generateMessage=(username,text)=>{
+const generateMessage=(username,text,destructIn)=>{
     return {
         username,
         text,
-        created_at: new Date().getTime()
+        created_at: new Date().getTime(),
+        destructIn
     }
 }
 

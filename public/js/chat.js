@@ -25,7 +25,6 @@ const autoScroll=()=>{
     const scrollOffset=$messages.scrollTop +visibleHeight
     if(containerHeight-newMessageHeight <=scrollOffset){
         $messages.scrollTop=$messages.scrollHeight
-
     }
 
 }
@@ -36,10 +35,16 @@ socket.on('message',(message)=>{
     const html=Mustache.render(messageTemplate,{
         username:message.username,
         message:message.text,
-        time: moment(message.created_at).format('h:mm a')
+        time: moment(message.created_at).format('h:mm a'),
+        id:message.created_at
     })
     $messages.insertAdjacentHTML("beforeend",html)
     autoScroll()
+    setTimeout(()=>{
+        var element = document.getElementById(`${message.created_at}`)
+        element.parentNode.removeChild(element)
+        console.log(`#${message.created_at} deleted after ${message.destructIn*1000}ms`)
+    },(message.destructIn*1000))
 })
 
 socket.on('roomData',({room,users})=>{
@@ -66,10 +71,9 @@ socket.on('locationMessage',(locationURL)=>{
 $messageForm.addEventListener('submit',(e)=>{
     e.preventDefault()
     $messageForm.setAttribute('disabled','disabled')
-
     const message=e.target.elements.message.value
-
-    socket.emit('new-message',message,()=>{
+    const destructIn=e.target.elements.destructIn.value
+    socket.emit('new-message',{message,destructIn},()=>{
         $messageForm.removeAttribute('disabled','disabled')
         $messageFormInput.value=''
         $messageFormInput.focus()

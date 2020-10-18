@@ -21,10 +21,11 @@ io.on('connection',(socket)=>{
     console.log('New Websocket Connection !')
     
 
-    socket.on('new-message',(msg,callback)=>{
+    socket.on('new-message',({message,destructIn},callback)=>{
         const user=getUser(socket.id)
 
-        io.to(user.room).emit('message',generateMessage(user.username,msg))
+        //console.log(generateMessage(user.username,message,destructIn))
+        io.to(user.room).emit('message',generateMessage(user.username,message,destructIn))
         callback()
     })
 
@@ -41,8 +42,9 @@ io.on('connection',(socket)=>{
             return callback(error)
         }
         socket.join(user.room)
-        socket.emit('message',generateMessage('Server','Welcome!'))
-        socket.broadcast.to(user.room).emit('message',generateMessage('Server',`${user.username} has Joined!`)) //send to everyone except that socket
+        socket.emit('message',generateMessage('Server','Welcome!',10))
+        //console.log(generateMessage('Server','Welcome!',10))
+        socket.broadcast.to(user.room).emit('message',generateMessage('Server',`${user.username} has Joined!`,5)) //send to everyone except that socket
         io.to(user.room).emit('roomData',{
             room:user.room,
             users:getUsersInRoom(user.room)
@@ -53,7 +55,7 @@ io.on('connection',(socket)=>{
     socket.on('disconnect',()=>{       //predefined event just like connection
         const user=removeUser(socket.id)
         if(user){
-            io.to(user.room).emit('message',generateMessage('Server',`${user.username} has left!`)) //broadcast not needed as that socket has already left
+            io.to(user.room).emit('message',generateMessage('Server',`${user.username} has left!`,5)) //broadcast not needed as that socket has already left
             io.to(user.room).emit('roomData',{
                 room:user.room,
                 users:getUsersInRoom(user.room)
