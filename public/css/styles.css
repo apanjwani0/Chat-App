@@ -115,6 +115,7 @@ button:disabled {
 /* Message Styles */
 
 .message {
+    text-align: left;
     margin-bottom: 16px;   
 }
 

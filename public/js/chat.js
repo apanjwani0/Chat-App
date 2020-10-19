@@ -31,20 +31,25 @@ const autoScroll=()=>{
 
 
 socket.on('message',(message)=>{
+    const align= username.trim().toLowerCase() === message.username ? "right" :"left"
     console.log(message)
     const html=Mustache.render(messageTemplate,{
         username:message.username,
         message:message.text,
         time: moment(message.created_at).format('h:mm a'),
-        id:message.created_at
+        id:message.created_at,
+        align:align
     })
     $messages.insertAdjacentHTML("beforeend",html)
     autoScroll()
-    setTimeout(()=>{
+    
+    const deleteMessage=()=>{
         var element = document.getElementById(`${message.created_at}`)
         element.parentNode.removeChild(element)
         console.log(`#${message.created_at} deleted after ${message.destructIn*1000}ms`)
-    },(message.destructIn*1000))
+    }
+
+    if(message.destructIn!=-1) setTimeout(deleteMessage,message.destructIn*1000)
 })
 
 socket.on('roomData',({room,users})=>{
@@ -58,14 +63,25 @@ socket.on('roomData',({room,users})=>{
 })
 
 socket.on('locationMessage',(locationURL)=>{
+    const align= username.trim().toLowerCase() === locationURL.username ? "right" :"left"
     console.log(locationURL)
     const html=Mustache.render(locationTemplate,{
         username:locationURL.username,
         locationURL:locationURL.url,
-        time: moment(locationURL.created_at).format('h:mm a')
+        time: moment(locationURL.created_at).format('h:mm a'),
+        id:locationURL.created_at,
+        align:align
     })
     $messages.insertAdjacentHTML("beforeend",html)
     autoScroll()
+
+    const deleteMessage=()=>{
+        var element = document.getElementById(`${locationURL.created_at}`)
+        element.parentNode.removeChild(element)
+        console.log(`#${locationURL.created_at} deleted after ${locationURL.destructIn*1000}ms`)
+    }
+
+    if(locationURL.destructIn!=-1) setTimeout(deleteMessage,locationURL.destructIn*1000)
 })
 
 $messageForm.addEventListener('submit',(e)=>{
@@ -83,6 +99,7 @@ $messageForm.addEventListener('submit',(e)=>{
 
 $sendLocation.addEventListener('click',(e)=>{
     //e.preventDefault()
+    var destructIn=document.getElementById('secs').value
     $sendLocation.setAttribute('disabled','disabled')
     if(!navigator.geolocation){
         return alert('Your browser does not support geolocation')
@@ -91,7 +108,8 @@ $sendLocation.addEventListener('click',(e)=>{
         //console.log(position)
         socket.emit('sendLocation',{
             latitude:position.coords.latitude,
-            longitude:position.coords.longitude
+            longitude:position.coords.longitude,
+            destructIn:destructIn
         },()=>{
             $sendLocation.removeAttribute('disabled','disabled')
             console.log('Location Shared')

@@ -7,11 +7,12 @@ const generateMessage=(username,text,destructIn)=>{
     }
 }
 
-const generateLocationMessage=(username,url)=>{
+const generateLocationMessage=(username,url,destructIn)=>{
     return {
         username,
         url,
-        created_at: new Date().getTime()
+        created_at: new Date().getTime(),
+        destructIn
     }
 }
 
