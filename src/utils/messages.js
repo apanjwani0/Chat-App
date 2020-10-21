@@ -16,7 +16,17 @@ const generateLocationMessage=(username,url,destructIn)=>{
     }
 }
 
+const generateAudioMessage=(username,audioBlob,destructIn)=>{
+    return {
+        username,
+        audioBlob,
+        created_at: new Date().getTime(),
+        destructIn
+    }
+}
+
 module.exports={
     generateMessage,
-    generateLocationMessage
+    generateLocationMessage,
+    generateAudioMessage
 }

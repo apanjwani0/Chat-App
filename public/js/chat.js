@@ -1,15 +1,20 @@
 const socket=io()
 
+import { recordAudio } from './functions.js'
+
+
 const $messageForm= document.querySelector('#message-form')
 const $messageFormInput=document.querySelector('input')
 const $messageFormButton=document.querySelector('button')
 const $sendLocation=document.querySelector('#send-location')
+const $recordAudio=document.querySelector('#record-audio')
 
 const $messages=document.querySelector('#messages')
 const $sidebar=document.querySelector('#sidebar')
 const messageTemplate=document.querySelector('#message-template').innerHTML
 const locationTemplate=document.querySelector('#location-template').innerHTML
 const sidebarTemplate=document.querySelector('#sidebar-template').innerHTML
+const audioMessageTemplate=document.querySelector('#audio-message').innerHTML
 
 const {username,room}=Qs.parse(location.search,{ignoreQueryPrefix:true})
 
@@ -84,6 +89,39 @@ socket.on('locationMessage',(locationURL)=>{
     if(locationURL.destructIn!=-1) setTimeout(deleteMessage,locationURL.destructIn*1000)
 })
 
+socket.on('audioMessage',(audioMessage)=>{
+    const align= username.trim().toLowerCase() === audioMessage.username ? "right" :"left"
+    //console.log(audioMessage.audioURL)
+    //const audio =new Audio(audioMessage.audioURL)
+    //audio.play()
+    var reader = new FileReader();
+    //console.log(audioMessage.audioBlob)
+    const blob = new Blob([audioMessage.audioBlob], {type : 'audio/mpeg'});
+    // reader.readAsDataURL(blob); 
+    // reader.onloadend = function() {
+    //     var audio64 = reader.result;
+    //     const html=Mustache.render(audioMessageTemplate,{
+    //         audioURL:audio64,
+    //         username:audioMessage.username,
+    //         time: moment(audioMessage.created_at).format('h:mm a'),
+    //         id:audioMessage.created_at,
+    //         align:align
+    //     })
+    //     $messages.insertAdjacentHTML("beforeend",html)
+    //     autoScroll()
+    // }
+    const audioURL=URL.createObjectURL(blob)
+    const html=Mustache.render(audioMessageTemplate,{
+        audioURL:audioURL,
+        username:audioMessage.username,
+        time: moment(audioMessage.created_at).format('h:mm a'),
+        id:audioMessage.created_at,
+        align:align
+    })
+    $messages.insertAdjacentHTML("beforeend",html)
+    autoScroll()
+})
+
 $messageForm.addEventListener('submit',(e)=>{
     e.preventDefault()
     $messageForm.setAttribute('disabled','disabled')
@@ -116,6 +154,31 @@ $sendLocation.addEventListener('click',(e)=>{
         })
     })
 })
+
+var recording=false
+
+const recorder=async()=>{
+    const {startRecording,stopRecording}=await recordAudio()
+    $recordAudio.addEventListener('click',async (e)=>{
+        if(!recording){
+            console.log('Start Recording')
+            await startRecording()
+            recording=true
+        }else{
+            console.log('Stop Recording')
+            var destructIn=document.getElementById('secs').value
+            const audioBlob=await stopRecording()
+            socket.emit('new-audio-message',{audioBlob,destructIn},()=>{
+                recording=false
+            })
+        }
+    })
+}
+recorder()
+
+
+
+
 
 socket.emit('join',{username,room},(error)=>{
     if(error){

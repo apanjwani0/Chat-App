@@ -4,6 +4,7 @@
         <title>Chat-App</title>
         <link rel="icon" href="/img/favicon.png" >
         <link rel="stylesheet" href="/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <div class="chat">
@@ -12,7 +13,7 @@
             </div>
             <div class="chat__main">
                 <h1>Chat-App</h1>
-
+                <!-- <header>Chat-App</header> -->
                 <div id="messages" class="chat__messages"></div>
                 <div class="compose">
                     <form action="send-message" id="message-form">
@@ -21,11 +22,12 @@
                         <button>Send</button>
                     </form>
                     <div><button id="send-location">Send Location</button></div>
+                    <div><button id="record-audio">Record</button></div>
                 </div>
             </div>
         </div>
-        
 
+        
         <script id="message-template" type="text/html">
             <div class="message" id="{{id}}" style="text-align:{{align}};">
                 <p>
@@ -43,6 +45,18 @@
                     <span class="message__meta">{{time}}</span>
                 </p>
                 <p><a href="{{locationURL}}" target="_blank">My Location</a></p>
+            </div>
+        </script>
+
+        <script type="text/html" id="audio-message">
+            <div class="message" id="{{id}}" style="text-align:{{align}};">
+                <p>
+                    <span class="message__name">{{username}}</span>
+                    <span class="message__meta">{{time}}</span>
+                </p>
+                <audio controls src="{{audioURL}}" type="audio/mpeg" preload="auto">
+                    Audio Message
+                </audio>
             </div>
         </script>
 
@@ -65,12 +79,7 @@
                 var option = document.createElement("OPTION");
                     option.innerHTML = "Never";
                     option.value = -1;
-                    secs.appendChild(option);
-         
-                //Determine the Current Year.
-                //var destructIn = (new Date()).getFullYear();
-         
-                //Loop and add the Year values to DropDownList.
+                    secs.appendChild(option)
                 for (var i = 2; i <= 30; i+=2) {
                     var option = document.createElement("OPTION");
                     option.innerHTML = `${i} sec`;
@@ -81,11 +90,10 @@
             };
         </script>
 
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-        <script src="./js/chat.js"></script>
+        <script type="module" src="./js/chat.js"></script>
     </body>
 </html>
