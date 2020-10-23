@@ -91,42 +91,46 @@ socket.on('locationMessage',(locationURL)=>{
 
 socket.on('audioMessage',(audioMessage)=>{
     const align= username.trim().toLowerCase() === audioMessage.username ? "right" :"left"
-    
 
-    var x = new XMLHttpRequest();
-    x.open('GET', audioMessage.audioURL);
-    x.responseType = 'blob';
-    x.onload = function() {
-        const audioURL = URL.createObjectURL(this.response);
-        console.log(audioURL,'new')
-        // const audio=new Audio(audioURL)
-        // audio.load()
-        // audio.play()
-        // const duration=audio.duration
-        // console.log(duration)
+    var duration //to get duration
+    var audioContext = new (window.AudioContext || window.webkitAudioContext)()
+    var req=new XMLHttpRequest()
+    req.open('GET',audioMessage.audioURL)
+    req.responseType='arraybuffer'
+    req.onload=function(){
+        audioContext.decodeAudioData(req.response,function(buffer){
+            duration= parseInt(buffer.duration)
+            console.log(duration,'testing')
+            const html=Mustache.render(audioMessageTemplate,{
+                audioURL:audioMessage.audioURL,
+                username:audioMessage.username,
+                time: moment(audioMessage.created_at).format('h:mm a'),
+                id:audioMessage.created_at,
+                align:align
+            })
+            $messages.insertAdjacentHTML("beforeend",html)
+            autoScroll()
+            // var aud = document.getElementById(audioMessage.created_at).children
+            // aud[1].addEventListener("durationchange",()=>{
+            //     console.log(aud[1].duration);
+            //     console.log('Here!')
+            // })
+            // aud[1].addEventListener("loadedmetadata",()=>{
+            //     console.log(aud[1].duration);
+            //     console.log('Loaded meta data')
+            // })
 
-
-        const html=Mustache.render(audioMessageTemplate,{
-            audioURL:audioURL,
-            username:audioMessage.username,
-            time: moment(audioMessage.created_at).format('h:mm a'),
-            id:audioMessage.created_at,
-            align:align
+            //deletes after duration+destructIn value
+            const deleteAfter=audioMessage.destructIn*1+duration*1
+            const deleteMessage=()=>{
+                var element = document.getElementById(`${audioMessage.created_at}`)
+                element.parentNode.removeChild(element)
+                console.log(`#${audioMessage.created_at} deleted after ${deleteAfter*1000}ms`)
+            }
+            if(audioMessage.destructIn!=-1) setTimeout(deleteMessage,(deleteAfter*1000))
         })
-        $messages.insertAdjacentHTML("beforeend",html)
-        autoScroll()
-
-        var aud = document.getElementById(audioMessage.created_at).children
-        aud[1].addEventListener("durationchange",()=>{
-            console.log(aud[1].duration);
-            console.log('Here!')
-        })
-        aud[1].addEventListener("loadedmetadata",()=>{
-            console.log(aud[1].duration);
-            console.log('Loaded meta data')
-        })
-    };
-    x.send();
+    }
+    req.send()
 })
 
 
