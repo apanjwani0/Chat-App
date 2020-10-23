@@ -75,18 +75,18 @@
             window.onload = function () {
                 //Reference the DropDownList.
                 var secs = document.getElementById("secs");
-
+                const options=[2,3,5,10,15,20,25,30]
                 var option = document.createElement("OPTION");
                     option.innerHTML = "Never";
                     option.value = -1;
                     secs.appendChild(option)
-                for (var i = 2; i <= 30; i+=2) {
+                for (var i = 0; i < 8; i++) {
                     var option = document.createElement("OPTION");
-                    option.innerHTML = `${i} sec`;
-                    option.value = i;
+                    option.innerHTML = `${options[i]} sec`;
+                    option.value = options[i];
                     secs.appendChild(option);
                 }
-                document.getElementById("secs").selectedIndex = "4";
+                document.getElementById("secs").selectedIndex = "0";
             };
         </script>
 
