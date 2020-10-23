@@ -1,5 +1,10 @@
 /* General Styles */
 
+@viewport {
+    width: device-width ;
+    zoom: 1.0 ;
+  }
+
 * {
     margin: 0;
     padding: 0;
@@ -33,18 +38,19 @@ label {
 
 input {
     border: 1px solid #eeeeee;
-    padding: 12px;
+    padding: 10px;
     outline: none;
 }
 
 button {
     cursor: pointer;
-    padding: 12px;
-    background: #7C5CBF;
-    border: none;
+    padding: 10px;
+    background: #6537ca;
+    border-radius: 120px;
     color: white;
     font-size: 16px;
     transition: background .3s ease;
+    border: none;
 }
 
 button:hover {
@@ -93,9 +99,17 @@ button:disabled {
     height: 100vh;
     color: white;
     background: #333744;
-    width: 225px;
-    overflow-y: scroll
+    width: 30vh;
+    overflow-y: scroll;
+    font-size: 2.5vh;
+    text-align: left;
 }
+
+/* @media (max-width: 768px) {
+    #sidebar {
+        display: none;
+    }
+} */
 
 /* Chat styles */
 
@@ -104,6 +118,7 @@ button:disabled {
     display: flex;
     flex-direction: column;
     max-height: 100vh;
+    font-size: 3vh;
 }
 
 .chat__messages {
@@ -140,7 +155,7 @@ button:disabled {
     display: flex;
     flex-shrink: 0;
     margin-top: 16px;
-    padding: 24px;
+    padding: 20px;
 }
 
 .compose form {
@@ -152,7 +167,7 @@ button:disabled {
 .compose input {
     border: 1px solid #eeeeee;
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     margin: 0 16px 0 0;
     flex-grow: 1;
 }
@@ -167,7 +182,7 @@ button:disabled {
     font-weight: 400;
     font-size: 22px;
     background: #2c2f3a;
-    padding: 24px;   
+    padding: 20px;   
 }
 
 .list-title {

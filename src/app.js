@@ -2,7 +2,7 @@ const path=require('path')
 const express=require('express')
 const http=require('http')
 const socketio=require('socket.io')
-const { generateMessage,generateLocationMessage} = require('./utils/messages')
+const { generateMessage,generateLocationMessage,generateAudioMessage} = require('./utils/messages')
 const {addUser,removeUser,getUser,getUsersInRoom}=require('./utils/users')
 
 const publicDir =path.join(__dirname,'../public')
@@ -49,6 +49,13 @@ io.on('connection',(socket)=>{
             room:user.room,
             users:getUsersInRoom(user.room)
         })
+        callback()
+    })
+
+    socket.on('new-audio-message',({audioBlob,destructIn},callback)=>{
+        const user=getUser(socket.id)
+        //console.log(audioBlob)
+        io.to(user.room).emit('audioMessage',generateAudioMessage(user.username,audioBlob,destructIn))
         callback()
     })
 
