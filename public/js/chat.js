@@ -14,7 +14,7 @@ const $sidebar=document.querySelector('#sidebar')
 const messageTemplate=document.querySelector('#message-template').innerHTML
 const locationTemplate=document.querySelector('#location-template').innerHTML
 const sidebarTemplate=document.querySelector('#sidebar-template').innerHTML
-const audioMessageTemplate=document.querySelector('#audio-message').innerHTML
+const audioMessageTemplate=document.querySelector('#audio-message-template').innerHTML
 
 const {username,room}=Qs.parse(location.search,{ignoreQueryPrefix:true})
 
@@ -91,36 +91,49 @@ socket.on('locationMessage',(locationURL)=>{
 
 socket.on('audioMessage',(audioMessage)=>{
     const align= username.trim().toLowerCase() === audioMessage.username ? "right" :"left"
-    //console.log(audioMessage.audioURL)
-    //const audio =new Audio(audioMessage.audioURL)
-    //audio.play()
-    var reader = new FileReader();
-    //console.log(audioMessage.audioBlob)
-    const blob = new Blob([audioMessage.audioBlob], {type : 'audio/mpeg'});
-    // reader.readAsDataURL(blob); 
-    // reader.onloadend = function() {
-    //     var audio64 = reader.result;
-    //     const html=Mustache.render(audioMessageTemplate,{
-    //         audioURL:audio64,
-    //         username:audioMessage.username,
-    //         time: moment(audioMessage.created_at).format('h:mm a'),
-    //         id:audioMessage.created_at,
-    //         align:align
-    //     })
-    //     $messages.insertAdjacentHTML("beforeend",html)
-    //     autoScroll()
-    // }
-    const audioURL=URL.createObjectURL(blob)
-    const html=Mustache.render(audioMessageTemplate,{
-        audioURL:audioURL,
-        username:audioMessage.username,
-        time: moment(audioMessage.created_at).format('h:mm a'),
-        id:audioMessage.created_at,
-        align:align
-    })
-    $messages.insertAdjacentHTML("beforeend",html)
-    autoScroll()
+
+    var duration //to get duration
+    var audioContext = new (window.AudioContext || window.webkitAudioContext)()
+    var req=new XMLHttpRequest()
+    req.open('GET',audioMessage.audioURL)
+    req.responseType='arraybuffer'
+    req.onload=function(){
+        audioContext.decodeAudioData(req.response,function(buffer){
+            duration= parseInt(buffer.duration)
+            console.log(duration,'testing')
+            const html=Mustache.render(audioMessageTemplate,{
+                audioURL:audioMessage.audioURL,
+                username:audioMessage.username,
+                time: moment(audioMessage.created_at).format('h:mm a'),
+                id:audioMessage.created_at,
+                align:align
+            })
+            $messages.insertAdjacentHTML("beforeend",html)
+            autoScroll()
+            // var aud = document.getElementById(audioMessage.created_at).children
+            // aud[1].addEventListener("durationchange",()=>{
+            //     console.log(aud[1].duration);
+            //     console.log('Here!')
+            // })
+            // aud[1].addEventListener("loadedmetadata",()=>{
+            //     console.log(aud[1].duration);
+            //     console.log('Loaded meta data')
+            // })
+
+            //deletes after duration+destructIn value
+            const deleteAfter=audioMessage.destructIn*1+duration*1
+            const deleteMessage=()=>{
+                var element = document.getElementById(`${audioMessage.created_at}`)
+                element.parentNode.removeChild(element)
+                console.log(`#${audioMessage.created_at} deleted after ${deleteAfter*1000}ms`)
+            }
+            if(audioMessage.destructIn!=-1) setTimeout(deleteMessage,(deleteAfter*1000))
+        })
+    }
+    req.send()
 })
+
+
 
 $messageForm.addEventListener('submit',(e)=>{
     e.preventDefault()
@@ -164,13 +177,18 @@ const recorder=async()=>{
             console.log('Start Recording')
             await startRecording()
             recording=true
+            $recordAudio.innerHTML="Recording"
+            $recordAudio.setAttribute("style","background-color:blue")
         }else{
             console.log('Stop Recording')
             var destructIn=document.getElementById('secs').value
-            const audioBlob=await stopRecording()
-            socket.emit('new-audio-message',{audioBlob,destructIn},()=>{
+            const audioURL=await stopRecording()
+            //console.log(audioURL)
+            socket.emit('new-audio-message',{audioURL,destructIn},()=>{
                 recording=false
             })
+            $recordAudio.innerHTML="Record"
+            $recordAudio.setAttribute("style","background-color:none")
         }
     })
 }

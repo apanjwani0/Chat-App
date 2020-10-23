@@ -52,10 +52,10 @@ io.on('connection',(socket)=>{
         callback()
     })
 
-    socket.on('new-audio-message',({audioBlob,destructIn},callback)=>{
+    socket.on('new-audio-message',({audioURL,destructIn},callback)=>{
         const user=getUser(socket.id)
         //console.log(audioBlob)
-        io.to(user.room).emit('audioMessage',generateAudioMessage(user.username,audioBlob,destructIn))
+        io.to(user.room).emit('audioMessage',generateAudioMessage(user.username,audioURL,destructIn))
         callback()
     })
 

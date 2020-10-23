@@ -12,6 +12,7 @@ const recordAudio=()=>new Promise(async resolve=>{
         audioFile=[]
         mediaRecorder.addEventListener('dataavailable',(e)=>{
             audioFile.push(e.data)
+            //console.log(mediaRecorder,stream)
         })
     }
 
@@ -28,12 +29,13 @@ const recordAudio=()=>new Promise(async resolve=>{
     //console.log(mediaRecorder.state)
     const stopRecording=()=> new Promise(resolve=>{
         mediaRecorder.addEventListener('stop',()=>{
-            const audioBlob=new Blob(audioFile,{type : 'audio/ogg'})
-            //stream.getTracks()[0].clear();
+            const audioBlob=new Blob(audioFile,{type : 'audio/wav'})
+            var audioURL=URL.createObjectURL(audioBlob)
+            console.log(audioURL,'originalURL')
             stream.getTracks().forEach(function(track) {
                 track.stop();
               });
-            resolve(audioBlob)
+            resolve(audioURL)
         })
         //console.log(mediaRecorder.state)
         mediaRecorder.stop()

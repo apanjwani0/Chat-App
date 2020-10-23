@@ -16,10 +16,10 @@ const generateLocationMessage=(username,url,destructIn)=>{
     }
 }
 
-const generateAudioMessage=(username,audioBlob,destructIn)=>{
+const generateAudioMessage=(username,audioURL,destructIn)=>{
     return {
         username,
-        audioBlob,
+        audioURL,
         created_at: new Date().getTime(),
         destructIn
     }
