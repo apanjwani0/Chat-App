@@ -48,13 +48,13 @@
             </div>
         </script>
 
-        <script type="text/html" id="audio-message">
+        <script type="text/html" id="audio-message-template">
             <div class="message" id="{{id}}" style="text-align:{{align}};">
                 <p>
                     <span class="message__name">{{username}}</span>
                     <span class="message__meta">{{time}}</span>
                 </p>
-                <audio controls src="{{audioURL}}" type="audio/mpeg" preload="auto">
+                <audio controls src="{{audioURL}}" type="audio/wav" preload="auto" >
                     Audio Message
                 </audio>
             </div>
